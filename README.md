@@ -10,6 +10,8 @@ faster:
 It has no settings, requests no extension permissions, and sends no data
 anywhere. See [Privacy](#privacy).
 
+![A pull request's Files changed tab. Each tab shows a key badge from 1 to 4. In the file tree, two viewed files show a green check, the unviewed file shows a circle, and their directory shows a green check with 2/2.](docs/screenshot.webp)
+
 ## Features
 
 ### Tab shortcuts
