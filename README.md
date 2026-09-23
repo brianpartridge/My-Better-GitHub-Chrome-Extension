@@ -1,6 +1,10 @@
-# PR Tab Shortcuts
+# My Better GitHub
 
-Personal Chrome extension. On any GitHub pull request page:
+Personal Chrome extension with small improvements to GitHub.
+
+## Tab shortcuts
+
+On any GitHub pull request page:
 
 | Key | Tab           |
 |-----|---------------|
