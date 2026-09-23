@@ -1,0 +1,37 @@
+/* Visuals for viewed-tree.js. Rows are tagged with data-prv-state
+   (viewed | partial | unviewed). A directory row's content element also gets
+   data-prv-count ("3/5").
+   The ">" combinators keep a directory's style off its child rows. */
+
+li[data-prv-state] > .PRIVATE_TreeView-item-container .PRIVATE_TreeView-item-content::after {
+  flex-shrink: 0;
+  margin-left: auto;
+  padding: 0 8px 0 6px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--fgColor-muted, #59636e);
+}
+
+/* Files: check when viewed, hollow circle when not. */
+li[data-prv-state="viewed"]:not([aria-expanded]) > .PRIVATE_TreeView-item-container .PRIVATE_TreeView-item-content::after {
+  content: "✓";
+  color: var(--fgColor-success, #1a7f37);
+}
+li[data-prv-state="unviewed"]:not([aria-expanded]) > .PRIVATE_TreeView-item-container .PRIVATE_TreeView-item-content::after {
+  content: "○";
+}
+
+/* Directories: viewed/total count, check when complete. */
+li[aria-expanded][data-prv-state] > .PRIVATE_TreeView-item-container .PRIVATE_TreeView-item-content[data-prv-count]::after {
+  content: attr(data-prv-count);
+}
+li[aria-expanded][data-prv-state="viewed"] > .PRIVATE_TreeView-item-container .PRIVATE_TreeView-item-content[data-prv-count]::after {
+  content: "✓ " attr(data-prv-count);
+  color: var(--fgColor-success, #1a7f37);
+}
+
+/* Dim anything fully viewed. */
+li[data-prv-state="viewed"] > .PRIVATE_TreeView-item-container .PRIVATE_TreeView-item-content-text,
+li[data-prv-state="viewed"] > .PRIVATE_TreeView-item-container .PRIVATE_TreeView-item-visual {
+  opacity: 0.5;
+}
