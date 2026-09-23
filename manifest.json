@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "My Better GitHub",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Press 1-4 on a GitHub pull request to jump between tabs. Shows each file's Viewed state in the Files changed tree.",
   "homepage_url": "https://github.com/brianpartridge/My-Better-GitHub-Chrome-Extension",
   "content_scripts": [
@@ -12,7 +12,10 @@
       "js": [
         "content.js"
       ],
-      "run_at": "document_idle"
+      "run_at": "document_idle",
+      "css": [
+        "tab-shortcuts.css"
+      ]
     },
     {
       "matches": [

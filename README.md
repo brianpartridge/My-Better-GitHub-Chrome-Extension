@@ -23,6 +23,8 @@ On any pull request page:
 | `3` | Checks        |
 | `4` | Files changed |
 
+- Each tab shows a small key badge with its number, so you don't need to
+  remember them.
 - Switching uses GitHub's own tab links, so the page doesn't fully reload.
 - Shortcuts are ignored while you type in a comment box or other input, and
   when Ctrl, Cmd, or Alt is held, so they don't clash with browser or GitHub
@@ -85,12 +87,13 @@ time. If a feature stops working, GitHub most likely changed its markup.
 
 There is no build step. The extension is plain JavaScript and CSS:
 
-| File              | Purpose                                            |
-|-------------------|----------------------------------------------------|
-| `manifest.json`   | Extension manifest (Manifest V3).                  |
-| `content.js`      | Tab shortcuts.                                     |
-| `viewed-tree.js`  | Tracks viewed state and tags file tree rows.       |
-| `viewed-tree.css` | Styles for the tagged file tree rows.              |
+| File                | Purpose                                            |
+|---------------------|----------------------------------------------------|
+| `manifest.json`     | Extension manifest (Manifest V3).                  |
+| `content.js`        | Tab shortcuts, and tags tabs for their key badges. |
+| `tab-shortcuts.css` | Styles for the key badges on the tabs.             |
+| `viewed-tree.js`    | Tracks viewed state and tags file tree rows.       |
+| `viewed-tree.css`   | Styles for the tagged file tree rows.              |
 
 After you edit a file, click the reload icon on the extension's card in
 `chrome://extensions`, then refresh any open GitHub tabs.

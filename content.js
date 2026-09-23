@@ -50,6 +50,41 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
+// Tag each tab link with its key so tab-shortcuts.css can draw a key badge.
+// GitHub re-renders the tab bar on navigation, so re-tag on DOM changes.
+let tagScheduled = false;
+new MutationObserver(scheduleTagTabLinks).observe(document.documentElement, {
+  subtree: true,
+  childList: true,
+});
+scheduleTagTabLinks();
+
+function scheduleTagTabLinks() {
+  if (tagScheduled) return;
+  tagScheduled = true;
+  requestAnimationFrame(() => {
+    tagScheduled = false;
+    tagTabLinks();
+  });
+}
+
+function tagTabLinks() {
+  const prMatch = location.pathname.match(/^(\/[^/]+\/[^/]+\/pull\/\d+)/);
+  if (!prMatch) return;
+
+  for (const [key, suffix] of Object.entries(TAB_SUFFIXES)) {
+    for (const tabSuffix of [suffix, ...(TAB_ALIASES[suffix] || [])]) {
+      const path = prMatch[1] + tabSuffix;
+      const links = document.querySelectorAll(
+        `a[class*="TabNavLink"][href="${path}"], nav.tabnav-tabs a[href="${path}"], a.tabnav-tab[href="${path}"]`
+      );
+      for (const link of links) {
+        if (link.dataset.mbgKey !== key) link.dataset.mbgKey = key;
+      }
+    }
+  }
+}
+
 function isTypingContext(target) {
   if (!(target instanceof Element)) return false;
   if (target.closest("input, textarea, select, [contenteditable]")) return true;
