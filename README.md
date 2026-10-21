@@ -4,6 +4,8 @@ A small Chrome extension that makes reviewing pull requests on GitHub a little
 faster:
 
 - **Tab shortcuts.** Press `1`–`4` to jump between a PR's tabs.
+- **File shortcuts.** Press `j` and `k` to move between files, and `v` to
+  mark a file as **Viewed**.
 - **Review progress in the file tree.** The **Files changed** tree shows which
   files you've marked as **Viewed**, and how many are left in each directory.
 
@@ -31,6 +33,26 @@ On any pull request page:
 - Shortcuts are ignored while you type in a comment box or other input, and
   when Ctrl, Cmd, or Alt is held, so they don't clash with browser or GitHub
   shortcuts.
+
+### File shortcuts
+
+On a PR's **Files changed** tab:
+
+| Key | Action                                          |
+|-----|-------------------------------------------------|
+| `j` | Select the next file                            |
+| `k` | Select the previous file                        |
+| `v` | Toggle the selected file's **Viewed** checkbox  |
+
+- The selected file has a blue outline, and its row in the file tree has a
+  blue background.
+- When `v` marks a file viewed, GitHub collapses it. The collapsed file stays
+  at the top of the screen, and the next file below it becomes selected.
+  When `v` removes the mark, the selection and scroll position don't change.
+- The first `j` or `k` selects the file at the top of the screen.
+- Clicking inside a file also selects it.
+- Like the tab shortcuts, these are ignored while you type and when Ctrl,
+  Cmd, or Alt is held.
 
 ### Viewed state in the file tree
 
@@ -81,9 +103,9 @@ on the extension's card in `chrome://extensions` and refresh your GitHub tabs.
 The extension reads GitHub's page structure, which GitHub can change at any
 time. If a feature stops working, GitHub most likely changed its markup.
 
-- The file tree feature supports GitHub's current **Files changed** view
-  (`/pull/<number>/changes`). It doesn't support GitHub's older, classic
-  files view.
+- The file shortcuts and the file tree feature support GitHub's current
+  **Files changed** view (`/pull/<number>/changes`). They don't support
+  GitHub's older, classic files view.
 
 ## Development
 
@@ -96,11 +118,13 @@ There is no build step. The extension is plain JavaScript and CSS:
 | `tab-shortcuts.css` | Styles for the key badges on the tabs.             |
 | `viewed-tree.js`    | Tracks viewed state and tags file tree rows.       |
 | `viewed-tree.css`   | Styles for the tagged file tree rows.              |
+| `file-nav.js`       | File shortcuts: `j`, `k`, and `v`.                 |
+| `file-nav.css`      | Styles for the selected file.                      |
 
 After you edit a file, click the reload icon on the extension's card in
 `chrome://extensions`, then refresh any open GitHub tabs.
 
-Both content scripts run on all of `github.com`, not just PR URLs. GitHub
+All content scripts run on all of `github.com`, not just PR URLs. GitHub
 navigates between pages without full reloads, so a script limited to PR URLs
 wouldn't load if you arrived at a PR from another GitHub page.
 
