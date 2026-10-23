@@ -1,0 +1,24 @@
+/* Visuals for file-nav.js. The selected diff and its file tree row both get
+   data-mbg-selected. */
+
+/* GitHub sets content-visibility: auto on each diff, which clips anything
+   painted outside it, so the frame goes on the inside. An outline there is
+   hidden by the diff's own backgrounds and sticky header, so the frame is an
+   overlay drawn above them. It ignores clicks. */
+[role="region"][id^="diff-"][data-mbg-selected] {
+  position: relative;
+}
+[role="region"][id^="diff-"][data-mbg-selected]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  border: 3px solid var(--borderColor-accent-emphasis, #0969da);
+  border-radius: 6px;
+}
+
+li[role="treeitem"][data-mbg-selected] > .PRIVATE_TreeView-item-container {
+  background-color: var(--bgColor-accent-muted, #ddf4ff);
+  border-radius: 6px;
+}
