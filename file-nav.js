@@ -35,12 +35,14 @@ document.addEventListener(
       consume(event);
       const markingViewed = button.getAttribute("aria-pressed") !== "true";
       button.click();
-      select(region);
-      if (!markingViewed) return;
+      if (!markingViewed) {
+        select(region);
+        return;
+      }
       // Select the next file, and pin the collapsed file to the top of the
       // screen so the next file shows right below it.
       const index = regions.indexOf(region);
-      if (index < regions.length - 1) select(regions[index + 1]);
+      select(regions[Math.min(index + 1, regions.length - 1)]);
       scrollToRegion(region);
       return;
     }
@@ -80,29 +82,47 @@ function currentRegion(regions) {
   return regions.find((r) => r.getBoundingClientRect().bottom > top + 1) || regions[regions.length - 1];
 }
 
+// Reselecting the selected file does nothing, so the file tree keeps any
+// scrolling the user did.
 function select(region) {
-  if (selectedRegion && selectedRegion !== region) {
-    selectedRegion.removeAttribute("data-mbg-selected");
-  }
+  if (region === selectedRegion) return;
+  selectedRegion?.removeAttribute("data-mbg-selected");
   selectedRegion = region;
   region.setAttribute("data-mbg-selected", "");
-  markTreeRow(region);
+  markTreeRow()?.scrollIntoView({ block: "nearest" });
 }
 
-function markTreeRow(region) {
-  for (const row of document.querySelectorAll('li[role="treeitem"][data-mbg-selected]')) {
-    row.removeAttribute("data-mbg-selected");
+// Tags the selected file's tree row, and returns it.
+function markTreeRow() {
+  const row = selectedRegion?.isConnected ? treeRowFor(selectedRegion) : null;
+  for (const other of document.querySelectorAll('li[role="treeitem"][data-mbg-selected]')) {
+    if (other !== row) other.removeAttribute("data-mbg-selected");
   }
+  if (row && !row.hasAttribute("data-mbg-selected")) row.setAttribute("data-mbg-selected", "");
+  return row;
+}
+
+function treeRowFor(region) {
   // GitHub wraps the file name in LTR marks.
   const heading = document.getElementById(region.getAttribute("aria-labelledby"));
   const path = heading?.textContent.replace(/[‎‏]/g, "").trim();
-  if (!path) return;
+  if (!path) return null;
   const tree = document.querySelector('[role="tree"][aria-label="File Tree"]');
-  const row = tree && [...tree.querySelectorAll('li[role="treeitem"]')].find((li) => li.id === path);
-  if (!row) return;
-  row.setAttribute("data-mbg-selected", "");
-  row.scrollIntoView({ block: "nearest" });
+  return (tree && [...tree.querySelectorAll('li[role="treeitem"]')].find((li) => li.id === path)) || null;
 }
+
+// GitHub mounts tree rows lazily, such as when a directory expands, and can
+// replace them. Tag the selected file's row again after DOM changes, without
+// scrolling the tree.
+let markScheduled = false;
+new MutationObserver(() => {
+  if (markScheduled || !selectedRegion) return;
+  markScheduled = true;
+  requestAnimationFrame(() => {
+    markScheduled = false;
+    markTreeRow();
+  });
+}).observe(document.documentElement, { subtree: true, childList: true });
 
 // Diffs render lazily (content-visibility: auto), and GitHub collapses a
 // diff some time after it is marked viewed. Both move the layout after we
