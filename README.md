@@ -48,7 +48,9 @@ On a PR's **Files changed** tab:
   blue background.
 - When `v` marks a file viewed, GitHub collapses it. The collapsed file stays
   at the top of the screen, and the next file below it becomes selected.
-  When `v` removes the mark, the selection and scroll position don't change.
+  If GitHub hasn't rendered the next file yet, it's selected as soon as it
+  appears. When `v` removes the mark, the selection and scroll position
+  don't change.
 - The first `j` or `k` selects the file at the top of the screen.
 - Clicking inside a file also selects it.
 - Like the tab shortcuts, these are ignored while you type and when Ctrl,
@@ -123,6 +125,9 @@ There is no build step. The extension is plain JavaScript and CSS:
 
 After you edit a file, click the reload icon on the extension's card in
 `chrome://extensions`, then refresh any open GitHub tabs.
+
+To log what the file shortcuts do, run `localStorage.mbgDebug = "1"` in the
+DevTools console on a GitHub page, then reload. The lines start with `[mbg]`.
 
 All content scripts run on all of `github.com`, not just PR URLs. GitHub
 navigates between pages without full reloads, so a script limited to PR URLs
