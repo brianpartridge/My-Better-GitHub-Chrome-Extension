@@ -18,9 +18,14 @@
 // DevTools console on github.com, then reload the page.
 
 const FILE_NAV_PAGE = /^\/[^/]+\/[^/]+\/pull\/\d+\/(changes|files)(\/|$)/;
+const PR_PATH = /^\/[^/]+\/[^/]+\/pull\/\d+/;
 const DIFF_REGION = '[role="region"][id^="diff-"]';
 
+// The selected diff's id, and the PR it belongs to. GitHub derives a diff's
+// id from the file's path, so another PR that changes the same file has a
+// diff with the same id.
 let selectedId = null;
+let selectedPr = null;
 
 let debugOn = false;
 try {
@@ -46,6 +51,7 @@ document.addEventListener(
     if (isFileNavTypingContext(event.target)) return;
     if (!FILE_NAV_PAGE.test(location.pathname)) return;
 
+    forgetOtherPr();
     const regions = allRegions();
     if (regions.length === 0) return;
     cancelWait();
@@ -70,8 +76,14 @@ document.addEventListener(
       // collapses, and the next file is selected when it appears.
       const next = regionAfter(region, regions);
       debug("marked", describe(region), "next:", describe(next));
-      if (next) select(next);
-      else waitForRegionAfter(region, select);
+      if (next) {
+        select(next);
+      } else {
+        // Keep the viewed file selected until the next one appears, so a
+        // first press of v still selects a file.
+        select(region);
+        waitForRegionAfter(region, select);
+      }
       scrollToRegion(region.id);
       return;
     }
@@ -151,6 +163,20 @@ function selectedRegion() {
   return regionById(selectedId);
 }
 
+function prPath() {
+  return location.pathname.match(PR_PATH)?.[0] ?? null;
+}
+
+// After a soft navigation to another PR, the selection and any wait belong
+// to the old PR, so drop them.
+function forgetOtherPr() {
+  if (selectedId && selectedPr !== prPath()) {
+    debug("left the selection's PR");
+    selectedId = null;
+  }
+  if (waiting && selectedPr !== prPath()) cancelWait();
+}
+
 // The rendered diff after the given one, or null.
 function regionAfter(region, regions = allRegions()) {
   const index = regions.indexOf(region);
@@ -168,8 +194,9 @@ function currentRegion(regions) {
 // Reselecting the selected file does nothing, so the file tree keeps any
 // scrolling the user did.
 function select(region) {
-  if (region.id === selectedId) return;
+  if (region.id === selectedId && selectedPr === prPath()) return;
   selectedId = region.id;
+  selectedPr = prPath();
   tagSelected(region);
   markTreeRow(region)?.scrollIntoView({ block: "nearest" });
 }
@@ -217,6 +244,7 @@ new MutationObserver(() => {
   syncScheduled = true;
   requestAnimationFrame(() => {
     syncScheduled = false;
+    forgetOtherPr();
     const region = selectedRegion();
     if (region !== lastSynced) {
       debug("selected element", region ? "changed:" : "gone:", describe(region) || selectedId);
