@@ -6,8 +6,9 @@
 //      of the screen.
 //
 // The selected diff and its file tree row are only tagged with data
-// attributes; all visuals live in file-nav.css. Clicking inside a diff also
-// selects it, so j/k continue from wherever you are reading.
+// attributes; all visuals live in file-nav.css. Clicking inside a diff or on
+// its file tree row also selects it, so j/k continue from wherever you are
+// reading.
 //
 // GitHub renders diffs lazily. A diff below the screen may not be in the DOM
 // yet, and GitHub replaces a diff's element when it renders it. So the
@@ -20,6 +21,7 @@
 const FILE_NAV_PAGE = /^\/[^/]+\/[^/]+\/pull\/\d+\/(changes|files)(\/|$)/;
 const PR_PATH = /^\/[^/]+\/[^/]+\/pull\/\d+/;
 const DIFF_REGION = '[role="region"][id^="diff-"]';
+const FILE_TREE = '[role="tree"][aria-label="File Tree"]';
 
 // The selected diff's id, and the PR it belongs to. GitHub derives a diff's
 // id from the file's path, so another PR that changes the same file has a
@@ -133,6 +135,34 @@ document.addEventListener("mousedown", (event) => {
   if (region) select(fileRegionOf(region));
 });
 
+// A file tree row links to its diff. GitHub scrolls to the diff, which may
+// not be rendered yet, so select it by id and tag it once it appears.
+document.addEventListener(
+  "click",
+  (event) => {
+    if (!FILE_NAV_PAGE.test(location.pathname)) return;
+    const id = treeRowDiffId(event.target);
+    if (id) selectId(id, false);
+  },
+  true
+);
+document.addEventListener(
+  "keydown",
+  (event) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    if (!FILE_NAV_PAGE.test(location.pathname)) return;
+    const id = treeRowDiffId(event.target);
+    if (id) selectId(id, false);
+  },
+  true
+);
+
+function treeRowDiffId(target) {
+  const row = target instanceof Element && target.closest(`${FILE_TREE} li[role="treeitem"]`);
+  const href = row?.querySelector('a[href^="#diff-"]')?.getAttribute("href");
+  return href ? href.slice(1) : null;
+}
+
 function consume(event) {
   event.preventDefault();
   event.stopPropagation();
@@ -191,14 +221,20 @@ function currentRegion(regions) {
   return regions.find((r) => r.getBoundingClientRect().bottom > top + 1) || regions[regions.length - 1];
 }
 
-// Reselecting the selected file does nothing, so the file tree keeps any
-// scrolling the user did.
 function select(region) {
-  if (region.id === selectedId && selectedPr === prPath()) return;
-  selectedId = region.id;
+  selectId(region.id, true);
+}
+
+// Selects the diff with the given id, rendered or not. Reselecting the
+// selected file does nothing, so the file tree keeps any scrolling the user
+// did.
+function selectId(id, scrollTree) {
+  if (id === selectedId && selectedPr === prPath()) return;
+  selectedId = id;
   selectedPr = prPath();
-  tagSelected(region);
-  markTreeRow(region)?.scrollIntoView({ block: "nearest" });
+  tagSelected(selectedRegion());
+  const row = markTreeRow(id);
+  if (scrollTree) row?.scrollIntoView({ block: "nearest" });
 }
 
 // Tags the given diff as selected, and no other diff.
@@ -209,9 +245,9 @@ function tagSelected(region) {
   if (region && !region.hasAttribute("data-mbg-selected")) region.setAttribute("data-mbg-selected", "");
 }
 
-// Tags the given diff's tree row, and returns it.
-function markTreeRow(region) {
-  const row = region ? treeRowFor(region) : null;
+// Tags the tree row of the diff with the given id, and returns it.
+function markTreeRow(id) {
+  const row = id ? treeRowFor(id) : null;
   for (const other of document.querySelectorAll('li[role="treeitem"][data-mbg-selected]')) {
     if (other !== row) other.removeAttribute("data-mbg-selected");
   }
@@ -219,11 +255,9 @@ function markTreeRow(region) {
   return row;
 }
 
-function treeRowFor(region) {
-  const path = pathOf(region);
-  if (!path) return null;
-  const tree = document.querySelector('[role="tree"][aria-label="File Tree"]');
-  return (tree && [...tree.querySelectorAll('li[role="treeitem"]')].find((li) => li.id === path)) || null;
+// Each file row links to its diff by id.
+function treeRowFor(id) {
+  return document.querySelector(`${FILE_TREE} a[href="#${CSS.escape(id)}"]`)?.closest('li[role="treeitem"]') || null;
 }
 
 // The file's path from the diff's heading, or null while the diff loads.
@@ -251,7 +285,7 @@ new MutationObserver(() => {
       lastSynced = region;
     }
     tagSelected(region);
-    markTreeRow(region);
+    markTreeRow(selectedId);
     checkWait();
   });
 }).observe(document.documentElement, { subtree: true, childList: true });

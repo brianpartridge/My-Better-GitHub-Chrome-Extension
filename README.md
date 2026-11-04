@@ -52,7 +52,7 @@ On a PR's **Files changed** tab:
   appears. When `v` removes the mark, the selection and scroll position
   don't change.
 - The first `j` or `k` selects the file at the top of the screen.
-- Clicking inside a file also selects it.
+- Clicking inside a file, or on its row in the file tree, also selects it.
 - Like the tab shortcuts, these are ignored while you type and when Ctrl,
   Cmd, or Alt is held.
 
