@@ -29,6 +29,9 @@ const FILE_TREE = '[role="tree"][aria-label="File Tree"]';
 let selectedId = null;
 let selectedPr = null;
 
+// Until this time, j, k and v wait for the diff of a file clicked in the tree.
+let loadingUntil = 0;
+
 let debugOn = false;
 try {
   debugOn = localStorage.getItem("mbgDebug") === "1";
@@ -54,6 +57,13 @@ document.addEventListener(
     if (!FILE_NAV_PAGE.test(location.pathname)) return;
 
     forgetOtherPr();
+    // The file clicked in the tree has no diff yet. Without this hold, the
+    // key would act on another file.
+    if (selectedId && !selectedRegion() && performance.now() < loadingUntil) {
+      debug(event.key, "ignored: the clicked file is loading");
+      consume(event);
+      return;
+    }
     const regions = allRegions();
     if (regions.length === 0) return;
     cancelWait();
@@ -142,7 +152,7 @@ document.addEventListener(
   (event) => {
     if (!FILE_NAV_PAGE.test(location.pathname)) return;
     const id = treeRowDiffId(event.target);
-    if (id) selectId(id, false);
+    if (id) selectFromTree(id);
   },
   true
 );
@@ -152,15 +162,23 @@ document.addEventListener(
     if (event.key !== "Enter" && event.key !== " ") return;
     if (!FILE_NAV_PAGE.test(location.pathname)) return;
     const id = treeRowDiffId(event.target);
-    if (id) selectId(id, false);
+    if (id) selectFromTree(id);
   },
   true
 );
 
+// The diff id of the file row at the target. A directory row contains its
+// child file rows, and it has aria-expanded, so it doesn't count.
 function treeRowDiffId(target) {
   const row = target instanceof Element && target.closest(`${FILE_TREE} li[role="treeitem"]`);
-  const href = row?.querySelector('a[href^="#diff-"]')?.getAttribute("href");
+  if (!row || row.hasAttribute("aria-expanded")) return null;
+  const href = row.querySelector('a[href^="#diff-"]')?.getAttribute("href");
   return href ? href.slice(1) : null;
+}
+
+function selectFromTree(id) {
+  selectId(id, false);
+  loadingUntil = selectedRegion() ? 0 : performance.now() + WAIT_MS;
 }
 
 function consume(event) {
@@ -280,6 +298,7 @@ new MutationObserver(() => {
     syncScheduled = false;
     forgetOtherPr();
     const region = selectedRegion();
+    if (region) loadingUntil = 0;
     if (region !== lastSynced) {
       debug("selected element", region ? "changed:" : "gone:", describe(region) || selectedId);
       lastSynced = region;

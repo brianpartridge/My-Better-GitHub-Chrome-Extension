@@ -53,6 +53,8 @@ On a PR's **Files changed** tab:
   don't change.
 - The first `j` or `k` selects the file at the top of the screen.
 - Clicking inside a file, or on its row in the file tree, also selects it.
+  If you click a file in the tree and GitHub hasn't rendered it yet, `j`, `k`,
+  and `v` do nothing until it appears, for up to 10 seconds.
 - Like the tab shortcuts, these are ignored while you type and when Ctrl,
   Cmd, or Alt is held.
 
