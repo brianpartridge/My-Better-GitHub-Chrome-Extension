@@ -131,6 +131,35 @@ After you edit a file, click the reload icon on the extension's card in
 To log what the file shortcuts do, run `localStorage.mbgDebug = "1"` in the
 DevTools console on a GitHub page, then reload. The lines start with `[mbg]`.
 
+### Tests
+
+The extension itself has no dependencies. The tests need Node.js:
+
+```sh
+npm install
+npx playwright install chromium
+npm test
+npm run lint
+```
+
+`npm test` starts Chromium with the real extension loaded, on a fake
+`github.com` from `tests/support/`. It needs no network or GitHub account, and
+CI runs it on each pull request.
+
+The fake page can't show that GitHub changed its real page. To check that, run
+the live tests. Sign in once, then run them when you like, or when a feature
+stops working:
+
+```sh
+npm run test:live:login
+npm run test:live
+```
+
+The live tests skip themselves if there is no saved session. They read a public
+PR and never change its **Viewed** state. The session is saved in `.auth/`,
+which git ignores. If a live test fails, update the extension and
+`tests/support/fake-github-page.js` to match GitHub's new page.
+
 All content scripts run on all of `github.com`, not just PR URLs. GitHub
 navigates between pages without full reloads, so a script limited to PR URLs
 wouldn't load if you arrived at a PR from another GitHub page.
