@@ -15,7 +15,7 @@ const FILES_PAGE = /^(\/[^/]+\/[^/]+\/pull\/\d+)\/(changes|files)(\/|$)/;
 let prKey = null;
 let viewedByPath = new Map();
 let pathByDigest = new Map();
-let seededFromScript = null;
+let seededFromScript; // undefined until a page was read; null means no script.
 let fetchStarted = false;
 let scheduled = false;
 
@@ -44,7 +44,7 @@ function update() {
     prKey = match[1];
     viewedByPath = new Map();
     pathByDigest = new Map();
-    seededFromScript = null;
+    seededFromScript = undefined;
     fetchStarted = false;
   }
 
