@@ -60,6 +60,8 @@ install_chrome() {
   say "2. Turn on Developer mode, at the top right."
   say "3. Click Load unpacked and choose the folder above."
   say "   If the extension is already loaded, click its reload icon instead."
+  say "   If its card points at the repository root rather than extension/,"
+  say "   remove it and load the folder above. The code moved in version 1.3.3."
   say "4. Reload any open GitHub tabs."
   if [ "$(uname)" = Darwin ] && open -Ra "Google Chrome" 2>/dev/null; then
     open -a "Google Chrome" "chrome://extensions" 2>/dev/null || true
@@ -112,6 +114,15 @@ install_safari() {
   fi
   mkdir -p "$dir"
   local target="$dir/$APP_NAME.app"
+  # Copy the new app beside the old one first, so a failed copy, such as a
+  # full disk, leaves the installed app untouched. Then swap the two with
+  # renames, and keep the old app until the new one is in place.
+  local staged="$dir/.$APP_NAME.app.new" backup="$dir/.$APP_NAME.app.old"
+  rm -rf "$staged" "$backup"
+  if ! ditto "$app" "$staged"; then
+    rm -rf "$staged"
+    fail "could not copy the app to $dir. The installed app, if any, is unchanged."
+  fi
   if pkill -x "$APP_NAME" 2>/dev/null; then
     # Wait for the old copy to exit. Opening the new one too soon fails.
     for _ in 1 2 3 4 5 6 7 8 9 10; do
@@ -119,8 +130,16 @@ install_safari() {
       sleep 0.5
     done
   fi
-  rm -rf "$target"
-  ditto "$app" "$target"
+  if [ -e "$target" ] && ! mv "$target" "$backup"; then
+    rm -rf "$staged"
+    fail "could not move the installed app aside. It is unchanged."
+  fi
+  if ! mv "$staged" "$target"; then
+    [ -e "$backup" ] && mv "$backup" "$target"
+    rm -rf "$staged"
+    fail "could not put the new app at $target. The previous app is back in place."
+  fi
+  rm -rf "$backup"
   say "Installed $target"
 
   # Safari lists the extension only after the app has run once.

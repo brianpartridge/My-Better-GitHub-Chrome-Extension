@@ -144,6 +144,12 @@ Pull the latest changes (or download them again). Then:
 
 Then refresh your GitHub tabs.
 
+If you installed in Chrome before version 1.3.3, the extension's card points at
+the repository root, and reloading fails with "Manifest file is missing or
+unreadable" now that the code lives in `extension/`. Do this once: click
+**Remove** on the card, then **Load unpacked** and select `extension/`. Later
+updates reload as usual.
+
 ## Privacy
 
 - The extension runs only on `https://github.com/*`.
