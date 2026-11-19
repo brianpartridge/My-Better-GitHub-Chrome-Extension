@@ -6,7 +6,7 @@ const path = require("node:path");
 const { test: base, expect, chromium } = require("@playwright/test");
 const { FakeGitHub, diffId } = require("./fake-github");
 
-const EXTENSION = path.resolve(__dirname, "../..");
+const EXTENSION = path.resolve(__dirname, "../../extension");
 
 function launchWithExtension() {
   return chromium.launchPersistentContext("", {

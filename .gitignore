@@ -6,3 +6,8 @@ node_modules/
 test-results/
 playwright-report/
 .auth/
+
+# Safari build output
+safari/build/
+xcuserdata/
+*.xcuserstate
