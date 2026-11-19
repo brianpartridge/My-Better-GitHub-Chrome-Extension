@@ -6,7 +6,8 @@
     "test": "playwright test --project=fixture",
     "test:live": "playwright test --project=live",
     "test:live:login": "node tests/live/login.js",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "icons": "node scripts/make-icons.js"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

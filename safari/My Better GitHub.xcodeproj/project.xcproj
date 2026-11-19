@@ -62,6 +62,7 @@
           "path": "<PROJECT>/My Better GitHub Extension",
           "name": "Resources",
           "children": [
+            { "path": "../../extension/icons", "target-membership": [ "My Better GitHub Extension/resources" ] },
             { "path": "../../extension/file-nav.css", "target-membership": [ "My Better GitHub Extension/resources" ] },
             { "path": "../../extension/viewed-tree.css", "target-membership": [ "My Better GitHub Extension/resources" ] },
             { "path": "../../extension/file-nav.js", "target-membership": [ "My Better GitHub Extension/resources" ] },

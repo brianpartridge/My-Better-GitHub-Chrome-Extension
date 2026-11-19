@@ -9,7 +9,7 @@ module.exports = [
     languageOptions: { sourceType: "script", globals: globals.browser },
   },
   {
-    files: ["eslint.config.js", "playwright.config.js", "tests/**/*.js"],
+    files: ["eslint.config.js", "playwright.config.js", "scripts/**/*.js", "tests/**/*.js"],
     ignores: ["tests/support/fake-github-page.js"],
     languageOptions: { sourceType: "commonjs", globals: globals.node },
   },

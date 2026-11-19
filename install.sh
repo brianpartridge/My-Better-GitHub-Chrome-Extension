@@ -112,13 +112,24 @@ install_safari() {
   fi
   mkdir -p "$dir"
   local target="$dir/$APP_NAME.app"
-  pkill -x "$APP_NAME" 2>/dev/null || true
+  if pkill -x "$APP_NAME" 2>/dev/null; then
+    # Wait for the old copy to exit. Opening the new one too soon fails.
+    for _ in 1 2 3 4 5 6 7 8 9 10; do
+      pgrep -x "$APP_NAME" >/dev/null || break
+      sleep 0.5
+    done
+  fi
   rm -rf "$target"
   ditto "$app" "$target"
   say "Installed $target"
 
   # Safari lists the extension only after the app has run once.
-  open "$target"
+  local opened=0
+  for _ in 1 2 3; do
+    if open "$target" 2>/dev/null; then opened=1; break; fi
+    sleep 1
+  done
+  [ "$opened" = 1 ] || say "Could not open the app. Open it once by hand, so Safari lists the extension."
   say
   say "Next, in Safari:"
   if [ "$unsigned" = 1 ]; then

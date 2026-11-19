@@ -180,6 +180,7 @@ no `chrome.*` or `browser.*` APIs:
 | `extension/viewed-tree.css`   | Styles for the tagged file tree rows.              |
 | `extension/file-nav.js`       | File shortcuts: `j`, `k`, and `v`.                 |
 | `extension/file-nav.css`      | Styles for the selected file.                      |
+| `extension/icons/`            | The icon, as PNGs. See [Icon](#icon).              |
 
 The rest of the repository supports it:
 
@@ -187,6 +188,7 @@ The rest of the repository supports it:
 |--------------|----------------------------------------------------------------------|
 | `install.sh` | Installs the extension in Chrome or Safari. See [Install](#install). |
 | `safari/`    | Xcode project that wraps `extension/` in a macOS app for Safari.     |
+| `scripts/`   | `make-icons.js`, which draws the icon. See [Icon](#icon).            |
 | `tests/`     | Playwright tests. See [Tests](#tests).                               |
 
 After you edit a file, reload the extension:
@@ -199,10 +201,26 @@ Then refresh any open GitHub tabs.
 
 The Safari project was generated with `xcrun safari-web-extension-converter`
 and then flattened into `safari/`. It references the files in `extension/` one
-by one, so if you add a file there, also add it to the **My Better GitHub
-Extension** target's resources in Xcode. When you bump `version` in
+by one, and the `icons/` folder as a whole, so if you add a file at the top of
+`extension/`, also add it to the **My Better GitHub Extension** target's
+resources in Xcode. When you bump `version` in
 `manifest.json`, bump `MARKETING_VERSION` in the Xcode project to match. The
 install script always builds with the manifest's version.
+
+### Icon
+
+The icon is a dark key cap with a green check mark, after the key badges on
+the PR tabs and the Viewed mark in the file tree. `scripts/make-icons.js`
+draws it as SVG and renders every PNG with the Chromium that Playwright
+installs. `docs/icon.svg` is a copy of the drawing. After you change the
+drawing, run:
+
+```sh
+npm run icons
+```
+
+It writes `extension/icons/`, which both browsers read through the manifest,
+the macOS app icon set in `safari/`, and the icon the app's window shows.
 
 To log what the file shortcuts do, run `localStorage.mbgDebug = "1"` in the
 DevTools console on a GitHub page, then reload. The lines start with `[mbg]`.
