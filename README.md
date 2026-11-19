@@ -1,7 +1,7 @@
 # My Better GitHub
 
-A small Chrome extension that makes reviewing pull requests on GitHub a little
-faster:
+A small browser extension for Chrome and Safari that makes reviewing pull
+requests on GitHub a little faster:
 
 - **Tab shortcuts.** Press `1`–`4` to jump between a PR's tabs.
 - **File shortcuts.** Press `j` and `k` to move between files, and `v` to
@@ -78,21 +78,71 @@ for signed-in users.
 
 ## Install
 
-The extension isn't in the Chrome Web Store. Load it from source:
+The extension isn't in the Chrome Web Store or the App Store. Install it from
+source. First clone this repository, or download it as a ZIP and unzip it.
 
-1. Clone this repository, or download it as a ZIP and unzip it.
-2. Open `chrome://extensions` in Chrome.
-3. Turn on **Developer mode** (top right).
-4. Click **Load unpacked** and select the repository folder.
-5. Refresh any GitHub tabs that were already open.
+The quickest way is the install script. It asks which browser you want, then
+does as much of the work as that browser allows:
+
+```sh
+./install.sh
+```
+
+You can also name the browser: `./install.sh chrome` or `./install.sh safari`.
+
+### Chrome
+
+Chrome loads the extension straight from the `extension/` folder. The script
+copies that folder's path to your clipboard and opens `chrome://extensions`,
+since Chrome has no way to load an unpacked extension from a script. To do it
+by hand:
+
+1. Open `chrome://extensions` in Chrome.
+2. Turn on **Developer mode** (top right).
+3. Click **Load unpacked** and select the `extension/` folder.
+4. Refresh any GitHub tabs that were already open.
 
 It should also work in other Chromium-based browsers that support loading
 unpacked extensions, such as Edge, Brave, and Arc. It's only tested in Chrome.
 
+### Safari
+
+Safari runs web extensions only inside a macOS app, so `safari/` holds a small
+Xcode project that wraps the same `extension/` folder. The app runs on macOS 14
+or later. Building it needs Xcode 27 or later. `./install.sh safari`:
+
+1. Builds the app with `xcodebuild`, signed with the team of the first
+   **Apple Development** certificate in your keychain. Set `MBG_TEAM_ID` to
+   pick a team, or to `none` to sign for local use only.
+2. Copies **My Better GitHub.app** to `/Applications`, or to `~/Applications`
+   when `/Applications` isn't writable. Set `MBG_INSTALL_DIR` to choose.
+3. Opens the app once, so Safari lists the extension.
+
+Then, in Safari:
+
+1. Choose **Safari > Settings > Extensions** and turn on **My Better GitHub**.
+2. Allow it on github.com when Safari asks. Safari asks per site, where
+   Chrome doesn't.
+3. Refresh any GitHub tabs that were already open.
+
+Without a development team, Safari hides the extension until you turn on
+**Develop > Developer Settings > Allow unsigned extensions**, and it turns
+that off again when it quits. A signed build avoids this. A free Apple
+Developer account is enough, since no App Store or notarization step is
+involved.
+
+You can also open `safari/My Better GitHub.xcodeproj` in Xcode, pick your
+team under **Signing & Capabilities**, and run it.
+
 ### Update
 
-Pull the latest changes (or download them again), then click the reload icon
-on the extension's card in `chrome://extensions` and refresh your GitHub tabs.
+Pull the latest changes (or download them again). Then:
+
+- **Chrome:** click the reload icon on the extension's card in
+  `chrome://extensions`.
+- **Safari:** run `./install.sh safari` again.
+
+Then refresh your GitHub tabs.
 
 ## Privacy
 
@@ -101,6 +151,9 @@ on the extension's card in `chrome://extensions` and refresh your GitHub tabs.
 - It makes no requests to any server other than GitHub. On the **Files
   changed** tab it may re-fetch the page you're on from github.com, to read
   which files are viewed after an in-page navigation.
+- In Safari, the extension asks for permission to run on github.com, as every
+  Safari extension does for the sites it uses. The macOS app that wraps it
+  does nothing but show how to turn the extension on.
 
 ## Limitations
 
@@ -110,23 +163,46 @@ time. If a feature stops working, GitHub most likely changed its markup.
 - The file shortcuts and the file tree feature support GitHub's current
   **Files changed** view (`/pull/<number>/changes`). They don't support
   GitHub's older, classic files view.
+- Safari is supported on macOS only. There is no iOS or iPadOS build.
 
 ## Development
 
-There is no build step. The extension is plain JavaScript and CSS:
+The extension itself has no build step. It's plain JavaScript and CSS in
+`extension/`, and one copy of the code serves both browsers because it uses
+no `chrome.*` or `browser.*` APIs:
 
-| File                | Purpose                                            |
-|---------------------|----------------------------------------------------|
-| `manifest.json`     | Extension manifest (Manifest V3).                  |
-| `content.js`        | Tab shortcuts, and tags tabs for their key badges. |
-| `tab-shortcuts.css` | Styles for the key badges on the tabs.             |
-| `viewed-tree.js`    | Tracks viewed state and tags file tree rows.       |
-| `viewed-tree.css`   | Styles for the tagged file tree rows.              |
-| `file-nav.js`       | File shortcuts: `j`, `k`, and `v`.                 |
-| `file-nav.css`      | Styles for the selected file.                      |
+| File                          | Purpose                                            |
+|-------------------------------|----------------------------------------------------|
+| `extension/manifest.json`     | Extension manifest (Manifest V3).                  |
+| `extension/content.js`        | Tab shortcuts, and tags tabs for their key badges. |
+| `extension/tab-shortcuts.css` | Styles for the key badges on the tabs.             |
+| `extension/viewed-tree.js`    | Tracks viewed state and tags file tree rows.       |
+| `extension/viewed-tree.css`   | Styles for the tagged file tree rows.              |
+| `extension/file-nav.js`       | File shortcuts: `j`, `k`, and `v`.                 |
+| `extension/file-nav.css`      | Styles for the selected file.                      |
 
-After you edit a file, click the reload icon on the extension's card in
-`chrome://extensions`, then refresh any open GitHub tabs.
+The rest of the repository supports it:
+
+| Path         | Purpose                                                              |
+|--------------|----------------------------------------------------------------------|
+| `install.sh` | Installs the extension in Chrome or Safari. See [Install](#install). |
+| `safari/`    | Xcode project that wraps `extension/` in a macOS app for Safari.     |
+| `tests/`     | Playwright tests. See [Tests](#tests).                               |
+
+After you edit a file, reload the extension:
+
+- **Chrome:** click the reload icon on the extension's card in
+  `chrome://extensions`.
+- **Safari:** run `./install.sh safari` to rebuild and reinstall the app.
+
+Then refresh any open GitHub tabs.
+
+The Safari project was generated with `xcrun safari-web-extension-converter`
+and then flattened into `safari/`. It references the files in `extension/` one
+by one, so if you add a file there, also add it to the **My Better GitHub
+Extension** target's resources in Xcode. When you bump `version` in
+`manifest.json`, bump `MARKETING_VERSION` in the Xcode project to match. The
+install script always builds with the manifest's version.
 
 To log what the file shortcuts do, run `localStorage.mbgDebug = "1"` in the
 DevTools console on a GitHub page, then reload. The lines start with `[mbg]`.
@@ -144,7 +220,9 @@ npm run lint
 
 `npm test` starts Chromium with the real extension loaded, on a fake
 `github.com` from `tests/support/`. It needs no network or GitHub account, and
-CI runs it on each pull request.
+CI runs it on each pull request. Playwright can't load Safari extensions, so
+the tests cover Chromium only. Check Safari by hand after
+`./install.sh safari`.
 
 The fake page can't show that GitHub changed its real page. To check that, run
 the live tests. Sign in once, then run them when you like, or when a feature

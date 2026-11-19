@@ -5,7 +5,7 @@ module.exports = [
   { ignores: ["node_modules/", "test-results/", "playwright-report/"] },
   js.configs.recommended,
   {
-    files: ["*.js", "tests/**/*.js"],
+    files: ["*.js", "extension/*.js", "tests/**/*.js"],
     languageOptions: { sourceType: "script", globals: globals.browser },
   },
   {
