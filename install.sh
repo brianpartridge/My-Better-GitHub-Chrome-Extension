@@ -143,10 +143,13 @@ install_safari() {
   say "Installed $target"
 
   # Safari lists every copy of the app that macOS knows about, so a build copy
-  # left here would show the extension twice. Forget it and delete it.
-  local lsregister=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister
-  if [ -x "$lsregister" ]; then "$lsregister" -u "$app" >/dev/null 2>&1 || true; fi
-  rm -rf "$app" "${app%/*}/$APP_NAME Extension.appex"
+  # left here would show the extension twice. Forget it and delete it, unless
+  # MBG_INSTALL_DIR points at the build folder and the two are one bundle.
+  if ! [ "$app" -ef "$target" ]; then
+    local lsregister=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister
+    if [ -x "$lsregister" ]; then "$lsregister" -u "$app" >/dev/null 2>&1 || true; fi
+    rm -rf "$app" "${app%/*}/$APP_NAME Extension.appex"
+  fi
 
   # Safari lists the extension only after the app has run once.
   local opened=0
