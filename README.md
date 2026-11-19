@@ -134,6 +134,11 @@ involved.
 You can also open `safari/My Better GitHub.xcodeproj` in Xcode, pick your
 team under **Signing & Capabilities**, and run it.
 
+If Safari lists the extension twice, macOS knows two copies of the app. A
+build in Xcode's DerivedData folder is the usual second one. Delete that
+copy, then quit and reopen Safari. The install script deletes its own build
+copy after each install for this reason.
+
 ### Update
 
 Pull the latest changes (or download them again). Then:

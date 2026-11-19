@@ -142,6 +142,12 @@ install_safari() {
   rm -rf "$backup"
   say "Installed $target"
 
+  # Safari lists every copy of the app that macOS knows about, so a build copy
+  # left here would show the extension twice. Forget it and delete it.
+  local lsregister=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister
+  if [ -x "$lsregister" ]; then "$lsregister" -u "$app" >/dev/null 2>&1 || true; fi
+  rm -rf "$app" "${app%/*}/$APP_NAME Extension.appex"
+
   # Safari lists the extension only after the app has run once.
   local opened=0
   for _ in 1 2 3; do
