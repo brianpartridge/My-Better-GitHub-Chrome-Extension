@@ -4,6 +4,7 @@
 // - The file tree: rows, directories, links to diffs, and keyboard use.
 // - Diffs, including those that are still loading or are not in the DOM.
 // - The Viewed button, which collapses the diff a moment after a click.
+// - The image viewer iframe of an image diff.
 // - A sticky page header, and tab links that navigate without a page load.
 //
 // Tests control it through window.fakeGitHub. tests/live checks these facts
@@ -16,9 +17,25 @@
   const byPath = new Map(files.map((file) => [file.path, file]));
   let softNavigations = 0;
 
-  function bodyElement() {
+  // The diff's body. For an image, GitHub's image viewer: an iframe from
+  // viewscreen.githubusercontent.com in a wrapper.
+  function bodyElement(file) {
     const body = document.createElement("div");
     body.className = "fake-body";
+    if (file.viewer) {
+      body.classList.add("fake-image");
+      const wrapper = document.createElement("div");
+      wrapper.className = "FileRendererWrapper__fake";
+      const viewport = document.createElement("div");
+      viewport.className = "FileRendererViewport__fake";
+      viewport.dataset.type = "img";
+      const iframe = document.createElement("iframe");
+      iframe.title = "File display";
+      iframe.src = file.viewer;
+      viewport.append(iframe);
+      wrapper.append(viewport);
+      body.append(wrapper);
+    }
     return body;
   }
 
@@ -47,12 +64,12 @@
       // GitHub collapses the diff shortly after the click.
       setTimeout(() => {
         region.querySelector(".fake-body")?.remove();
-        if (!file.viewed) region.append(bodyElement());
+        if (!file.viewed) region.append(bodyElement(file));
       }, 50);
     });
 
     region.append(heading, button);
-    if (!file.viewed) region.append(bodyElement());
+    if (!file.viewed) region.append(bodyElement(file));
     return region;
   }
 

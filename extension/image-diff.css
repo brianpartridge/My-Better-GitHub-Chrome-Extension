@@ -1,0 +1,89 @@
+/* Visuals for image-diff.js: the bar below each image diff, and its pixel
+   diff panel. The colors come from GitHub's own color variables, so the bar
+   follows the light or dark theme. */
+
+.mbg-image-tools {
+  border-top: 1px solid var(--borderColor-muted, #d1d9e0b3);
+  padding: 8px;
+  font-size: 12px;
+  color: var(--fgColor-default, #1f2328);
+}
+
+.mbg-image-buttons,
+.mbg-pixel-diff-header,
+.mbg-pixel-diff-modes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.mbg-pixel-diff-modes {
+  gap: 0;
+}
+
+.mbg-image-button {
+  padding: 3px 10px;
+  font: inherit;
+  line-height: 18px;
+  color: var(--button-default-fgColor-rest, var(--fgColor-default, #25292e));
+  background-color: var(--button-default-bgColor-rest, #f6f8fa);
+  border: 1px solid var(--button-default-borderColor-rest, var(--borderColor-default, #d1d9e0));
+  border-radius: 6px;
+  cursor: pointer;
+}
+.mbg-image-button:hover {
+  background-color: var(--button-default-bgColor-hover, #eff2f5);
+}
+.mbg-image-button[aria-expanded="true"],
+.mbg-image-button[aria-pressed="true"] {
+  color: var(--fgColor-accent, #0969da);
+  background-color: var(--bgColor-accent-muted, #ddf4ff);
+  border-color: var(--borderColor-accent-emphasis, #0969da);
+}
+
+/* The view buttons join into one control. */
+.mbg-pixel-diff-modes > .mbg-image-button {
+  border-radius: 0;
+  margin-left: -1px;
+}
+.mbg-pixel-diff-modes > .mbg-image-button:first-child {
+  border-radius: 6px 0 0 6px;
+  margin-left: 0;
+}
+.mbg-pixel-diff-modes > .mbg-image-button:last-child {
+  border-radius: 0 6px 6px 0;
+}
+.mbg-pixel-diff-modes > .mbg-image-button[aria-pressed="true"] {
+  position: relative;
+}
+
+.mbg-pixel-diff {
+  margin-top: 8px;
+}
+.mbg-pixel-diff[hidden] {
+  display: none;
+}
+
+.mbg-pixel-diff-status {
+  color: var(--fgColor-muted, #59636e);
+}
+
+.mbg-pixel-diff-stage {
+  margin-top: 8px;
+  overflow: auto;
+  text-align: center;
+}
+
+/* A checkerboard shows through transparent pixels in the Before and After
+   views. Pixels stay sharp when the browser scales the image. A tall
+   snapshot, such as a full phone screen, scales down to fit the window. */
+.mbg-pixel-diff-canvas {
+  max-width: 100%;
+  max-height: 80vh;
+  width: auto;
+  height: auto;
+  image-rendering: pixelated;
+  background: repeating-conic-gradient(var(--bgColor-muted, #f6f8fa) 0 25%, var(--bgColor-default, #ffffff) 0 50%) 0 0 / 16px 16px;
+  border: 1px solid var(--borderColor-muted, #d1d9e0b3);
+}
