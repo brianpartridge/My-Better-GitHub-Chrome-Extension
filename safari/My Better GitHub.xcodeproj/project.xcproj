@@ -66,6 +66,8 @@
             { "path": "../../extension/file-nav.css", "target-membership": [ "My Better GitHub Extension/resources" ] },
             { "path": "../../extension/viewed-tree.css", "target-membership": [ "My Better GitHub Extension/resources" ] },
             { "path": "../../extension/file-nav.js", "target-membership": [ "My Better GitHub Extension/resources" ] },
+            { "path": "../../extension/image-diff.js", "target-membership": [ "My Better GitHub Extension/resources" ] },
+            { "path": "../../extension/image-diff.css", "target-membership": [ "My Better GitHub Extension/resources" ] },
             { "path": "../../extension/manifest.json", "target-membership": [ "My Better GitHub Extension/resources" ] },
             { "path": "../../extension/content.js", "target-membership": [ "My Better GitHub Extension/resources" ] },
             { "path": "../../extension/viewed-tree.js", "target-membership": [ "My Better GitHub Extension/resources" ] },
@@ -124,7 +126,7 @@
           "$(inherited)",
           "@executable_path/../Frameworks",
         ],
-        "MARKETING_VERSION": "1.3.3",
+        "MARKETING_VERSION": "1.4.0",
         "OTHER_LDFLAGS": [
           "-framework",
           "SafariServices",
@@ -167,7 +169,7 @@
           "@executable_path/../../../../Frameworks",
         ],
         "MACOSX_DEPLOYMENT_TARGET": "14.0",
-        "MARKETING_VERSION": "1.3.3",
+        "MARKETING_VERSION": "1.4.0",
         "OTHER_LDFLAGS": [
           "-framework",
           "SafariServices",

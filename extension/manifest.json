@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "My Better GitHub",
-  "version": "1.3.3",
-  "description": "GitHub PR shortcuts: 1-4 switch tabs, j/k move between files, v marks a file viewed. Shows Viewed state in the file tree.",
+  "version": "1.4.0",
+  "description": "GitHub PR shortcuts: 1-4 switch tabs, j/k move between files, v marks a file viewed. Shows Viewed state in the file tree. Adds a pixel diff and a reload button to image diffs.",
   "homepage_url": "https://github.com/brianpartridge/My-Better-GitHub-Chrome-Extension",
   "icons": {
     "16": "icons/icon-16.png",
@@ -48,6 +48,18 @@
       ],
       "css": [
         "file-nav.css"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://github.com/*"
+      ],
+      "js": [
+        "image-diff.js"
+      ],
+      "css": [
+        "image-diff.css"
       ],
       "run_at": "document_idle"
     }

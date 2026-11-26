@@ -8,6 +8,9 @@ requests on GitHub a little faster:
   mark a file as **Viewed**.
 - **Review progress in the file tree.** The **Files changed** tree shows which
   files you've marked as **Viewed**, and how many are left in each directory.
+- **Pixel diffs for images.** A changed image, such as a snapshot test's
+  reference image, can show each pixel that changed. If GitHub doesn't load an
+  image diff, a button loads it again without a page reload.
 
 It has no settings, requests no extension permissions, and sends no data
 anywhere. See [Privacy](#privacy).
@@ -75,6 +78,34 @@ collapsed subdirectories and diffs GitHub hasn't loaded yet.
 
 You need to be signed in to GitHub, since the **Viewed** checkbox only exists
 for signed-in users.
+
+### Image diffs
+
+On a PR's **Files changed** tab, each image diff gets a bar below GitHub's
+image viewer:
+
+- **Pixel diff** compares the old and new image pixel by pixel, like the
+  image diff in the Kaleidoscope app. It shows how many pixels differ, and
+  draws the image in one of four views:
+
+  | View           | Shows                                                    |
+  |----------------|----------------------------------------------------------|
+  | **Highlight**  | Each changed pixel in magenta, on a faded gray copy of the new image, with a box around the changes. |
+  | **Difference** | The difference of each color channel. Black where the images match. |
+  | **Before**     | The old image.                                           |
+  | **After**      | The new image.                                           |
+
+  Switch between **Before** and **After** to flip the two images in place.
+  Images of different sizes are compared from their top-left corners. A
+  pixel that only one image has counts as changed. Any change to a pixel
+  counts, however small.
+
+- **↻ Reload images** loads GitHub's image viewer for that file again, for
+  when its images don't appear. The rest of the page stays as it is. If the
+  pixel diff is open, it loads its images again too.
+
+Added and deleted images only get **Reload images**, since there is nothing
+to compare.
 
 ## Install
 
@@ -161,7 +192,9 @@ updates reload as usual.
 - It requests no extension permissions and stores nothing.
 - It makes no requests to any server other than GitHub. On the **Files
   changed** tab it may re-fetch the page you're on from github.com, to read
-  which files are viewed after an in-page navigation.
+  which files are viewed after an in-page navigation. When you open a pixel
+  diff, it loads the two images from GitHub's own image hosts
+  (`*.githubusercontent.com`), the same images GitHub's image viewer shows.
 - In Safari, the extension asks for permission to run on github.com, as every
   Safari extension does for the sites it uses. The macOS app that wraps it
   does nothing but show how to turn the extension on.
@@ -171,9 +204,11 @@ updates reload as usual.
 The extension reads GitHub's page structure, which GitHub can change at any
 time. If a feature stops working, GitHub most likely changed its markup.
 
-- The file shortcuts and the file tree feature support GitHub's current
-  **Files changed** view (`/pull/<number>/changes`). They don't support
-  GitHub's older, classic files view.
+- The file shortcuts, the file tree feature, and the image diff bar support
+  GitHub's current **Files changed** view (`/pull/<number>/changes`). They
+  don't support GitHub's older, classic files view.
+- The pixel diff compares exact pixel values. It has no tolerance setting, so
+  a snapshot with small rendering noise shows many changed pixels.
 - Safari is supported on macOS only. There is no iOS or iPadOS build.
 
 ## Development
@@ -191,6 +226,8 @@ no `chrome.*` or `browser.*` APIs:
 | `extension/viewed-tree.css`   | Styles for the tagged file tree rows.              |
 | `extension/file-nav.js`       | File shortcuts: `j`, `k`, and `v`.                 |
 | `extension/file-nav.css`      | Styles for the selected file.                      |
+| `extension/image-diff.js`     | Image diffs: pixel diff and reload.                |
+| `extension/image-diff.css`    | Styles for the image diff bar.                     |
 | `extension/icons/`            | The icon, as PNGs. See [Icon](#icon).              |
 
 The rest of the repository supports it:
